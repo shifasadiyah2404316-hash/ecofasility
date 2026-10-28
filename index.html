@@ -1,0 +1,1508 @@
+index.html
+
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>EcoFacility - Platform Green-Tech Integratif</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0fdf4',
+                            100: '#dcfce7',
+                            500: '#22c55e',
+                            600: '#16a34a',
+                            700: '#15803d',
+                            900: '#14532d',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Lucide Icons -->
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- html2pdf for real PDF export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Inter', sans-serif; }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        
+        /* Print styles */
+        @media print {
+            body * { visibility: hidden; }
+            #printableCertificate, #printableCertificate * { visibility: visible; }
+            #printableCertificate { position: absolute; left: 0; top: 0; width: 100%; }
+        }
+    </style>
+</head>
+<!-- ========================================== -->
+    <!-- HALAMAN LOGIN FULLSCREEN                   -->
+    <!-- ========================================== -->
+    <div id="loginScreen" class="fixed inset-0 z-50 overflow-y-auto hide-scrollbar bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl p-8 shadow-2xl">
+        <div class="text-center mb-6">
+                <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white mx-auto mb-3 shadow-lg shadow-brand-500/30">
+                    <i data-lucide="leaf" class="w-8 h-8"></i>
+                </div>
+                <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">EcoFacility</h2>
+                <p class="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mt-0.5">Platform Green-Tech Integratif (FT UM)</p>
+                <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Silakan login untuk mengakses sistem</p>
+            </div>
+
+            <form onsubmit="handleLoginSubmit(event)" class="space-y-4 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Pilih Role Akses</label>
+                    <select id="loginRole" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs font-semibold text-gray-900 dark:text-white">
+                        <option value="pembeli">👤 Login sebagai Pembeli (Sektor Komersial)</option>
+                        <option value="vendor">🏪 Login sebagai Vendor (Penyedia Perangkat)</option>
+                        <option value="auditor">📊 Login sebagai Auditor (Tim Teknik Elektro UM)</option>
+                        <option value="admin">🛡️ Login sebagai Admin Sistem</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Email / ID Pengguna</label>
+                    <input type="text" id="loginEmail" value="user.kedaikopi@ecofacility.id" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs text-gray-900 dark:text-white" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Kata Sandi (Password)</label>
+                    <input type="password" id="loginPassword" value="password123" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs text-gray-900 dark:text-white" />
+                </div>
+                <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-brand-500/20 text-sm flex items-center justify-center gap-2 mt-2">
+                    <i data-lucide="log-in" class="w-4 h-4"></i> Masuk ke Sistem
+                </button>
+                <div class="mt-4 text-center">
+   <p class="text-xs text-gray-500">Belum punya akun? 
+    <button type="button" onclick="document.getElementById('loginScreen').classList.add('hidden'); document.getElementById('registerScreen').classList.remove('hidden');" class="text-brand-600 dark:text-brand-400 font-bold hover:underline">Daftar Sekarang</button>
+</p>
+
+</div>
+            </form>
+        </div>
+    </div>
+    <!-- ========================================== -->
+<!-- HALAMAN PENDAFTARAN / REGISTER (BARU)       -->
+<!-- ========================================== -->
+<div id="registerScreen" class="hidden fixed inset-0 z-50 overflow-y-auto bg-gray-50 dark:bg-gray-900 flex items-center justify-center p-4">
+    <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-3xl shadow-2xl p-6 sm:p-8 border border-gray-100 dark:border-gray-700">
+        <div class="text-center mb-6">
+            <div class="w-14 h-14 rounded-2xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white mx-auto mb-3 shadow-lg shadow-brand-500/30">
+                <i data-lucide="user-plus" class="w-8 h-8"></i>
+            </div>
+            <h2 class="text-2xl font-extrabold text-gray-900 dark:text-white tracking-tight">Daftar Akun Baru</h2>
+            <p class="text-xs text-brand-600 dark:text-brand-400 font-semibold uppercase tracking-wider mt-0.5">EcoFacility Green-Tech</p>
+            <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Buat akun baru untuk mulai menggunakan platform</p>
+        </div>
+
+        <form onsubmit="handleRegisterSubmit(event)" class="space-y-3 text-xs">
+            <div>
+                <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Pilih Role Akun</label>
+                <select id="regRole" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs font-semibold text-gray-900 dark:text-white">
+                    <option value="pembeli">👤 Pembeli / Sektor Komersial</option>
+                    <option value="vendor">🏪 Vendor / Penyedia Perangkat</option>
+                    <option value="auditor">📊 Auditor (Tim Teknik Elektro UM)</option>
+                </select>
+            </div>
+            <div>
+                <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Nama Lengkap / Usaha</label>
+                <input type="text" id="regName" placeholder="Contoh: Kedai Kopi Hijau" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs text-gray-900 dark:text-white" />
+            </div>
+            <div>
+                <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Email</label>
+                <input type="email" id="regEmail" placeholder="nama@email.com" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs text-gray-900 dark:text-white" />
+            </div>
+            <div>
+                <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Kata Sandi</label>
+                <input type="password" id="regPassword" placeholder="••••••••" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-3 text-xs text-gray-900 dark:text-white" />
+            </div>
+            <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition shadow-lg shadow-brand-500/20 text-sm flex items-center justify-center gap-2 mt-2">
+                <i data-lucide="user-check" class="w-4 h-4"></i> Daftar & Masuk
+            </button>
+        </form>
+
+        <div class="mt-4 text-center">
+           <p class="text-xs text-gray-500 text-center mt-4">
+    Sudah punya akun? 
+    <button type="button" onclick="document.getElementById('registerScreen').classList.add('hidden'); document.getElementById('loginScreen').classList.remove('hidden');" class="text-brand-600 dark:text-brand-400 font-bold hover:underline">Login di sini</button>
+</p>
+        </div>
+    </div>
+</div>
+    <!-- TOP NAVBAR -->
+    <header class="sticky top-0 z-40 bg-white/90 dark:bg-gray-800/90 backdrop-blur-md border-b border-gray-200 dark:border-gray-700">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <!-- Brand & Academic Partner -->
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-white shadow-lg shadow-brand-500/30">
+                    <i data-lucide="leaf" class="w-6 h-6"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight flex items-center gap-2">
+                        <span>EcoFacility</span>
+                        <span class="text-[10px] bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 px-2 py-0.5 rounded-full font-semibold uppercase tracking-wider border border-brand-200 dark:border-brand-800">Green-Tech</span>
+                    </h1>
+                    <p class="text-[11px] text-gray-500 dark:text-gray-400 flex items-center gap-1">
+                        <span>Mitra Akademik:</span>
+                        <strong class="text-brand-600 dark:text-brand-400">FT UM - Teknik Elektro</strong>
+                    </p>
+                </div>
+            </div>
+
+            <!-- Header Controls -->
+            <div class="flex items-center space-x-2 sm:space-x-4">
+                <!-- Theme Toggle -->
+                <button onclick="toggleTheme()" class="p-2 rounded-lg text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-gray-700 transition" title="Ganti Tema">
+                    <i data-lucide="sun" class="w-5 h-5 hidden dark:block"></i>
+                    <i data-lucide="moon" class="w-5 h-5 block dark:hidden"></i>
+                </button>
+
+                <!-- Role Selector Switcher -->
+                <div class="relative">
+                    <select id="roleSelector" onchange="switchRole(this.value)" class="bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200 font-medium text-xs sm:text-sm px-3 py-2 rounded-xl border border-gray-300 dark:border-gray-600 focus:outline-none focus:ring-2 focus:ring-brand-500 cursor-pointer">
+                        <option value="pembeli">👤 Role: Pembeli</option>
+                        <option value="vendor">🏪 Role: Vendor</option>
+                        <option value="auditor">📊 Role: Auditor (UM)</option>
+                        <option value="admin">🛡️ Role: Admin</option>
+                    </select>
+                </div>
+
+                <!-- Global 3-Dots Dynamic Menu Button -->
+                <button onclick="toggleDynamicMenu()" class="p-2 rounded-xl bg-gray-100 dark:bg-gray-700 hover:bg-brand-50 dark:hover:bg-gray-600 text-gray-700 dark:text-gray-200 transition relative">
+                    <i data-lucide="more-vertical" class="w-5 h-5"></i>
+              
+                  </button>
+                  <!-- Tombol Logout -->
+<button onclick="logout()" class="px-3 py-2 bg-red-50 dark:bg-red-950/40 text-red-600 hover:bg-red-100 text-xs font-bold rounded-xl transition flex items-center gap-1">
+    <i data-lucide="log-out" class="w-4 h-4"></i> Logout
+</button>
+            </div>
+        </div>
+    </header>
+
+    <!-- SUB-BAR / TAGLINE -->
+    <section class="bg-brand-900 text-white text-xs py-2 px-4 text-center font-medium shadow-inner flex justify-center items-center gap-2">
+        <i data-lucide="shield-check" class="w-4 h-4 text-brand-400 shrink-0"></i>
+        <span class="truncate">Platform Green-Tech Integratif: Marketplace Perangkat Hemat Energi & Jasa Audit Efisiensi Energi Sektor Komersial</span>
+    </section>
+
+    <!-- DYNAMIC ROLE MENU MODAL / DROPDOWN (3-DOTS) -->
+    <div id="dynamicMenuModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex justify-end p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-sm rounded-2xl shadow-2xl p-6 flex flex-col justify-between transform transition-all">
+            <div>
+                <div class="flex items-center justify-between pb-4 border-b dark:border-gray-700 mb-4">
+                    <div class="flex items-center space-x-2">
+                        <div class="p-2 bg-brand-100 dark:bg-brand-900/50 rounded-lg text-brand-600">
+                            <i data-lucide="grid" class="w-5 h-5"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 dark:text-white text-sm">Menu Navigasi Role</h3>
+                            <p class="text-xs text-gray-500 capitalize" id="menuRoleTitle">Role Pembeli</p>
+                        </div>
+                    </div>
+                    <button onclick="toggleDynamicMenu()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white">
+                        <i data-lucide="x" class="w-5 h-5"></i>
+                    </button>
+                </div>
+
+                <!-- Dynamic Items Container -->
+                <div id="dynamicMenuContent" class="space-y-1">
+                    <!-- Populated dynamically by JS -->
+                </div>
+            </div>
+
+            <div class="pt-4 border-t dark:border-gray-700">
+                <p class="text-[11px] text-gray-400 text-center">Kerjasama Riset & Pengabdian Masyarakat<br><strong>Departemen Teknik Elektro UM 2026</strong></p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN APP CONTENT CONTAINER -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+        <!-- SPLASH TRANSITION LOADER -->
+        <div id="splashLoader" class="hidden fixed inset-0 z-50 bg-white/90 dark:bg-gray-900/90 backdrop-blur-md flex flex-col items-center justify-center">
+            <div class="w-16 h-16 border-4 border-brand-500 border-t-transparent rounded-full animate-spin mb-4"></div>
+            <p class="font-semibold text-lg text-gray-800 dark:text-white" id="splashText">Mengaktifkan Modul Role...</p>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- ROLE 1: PEMBELI SECTION                    -->
+        <!-- ========================================== -->
+        <section id="rolePembeliView" class="space-y-6">
+            
+            <!-- Buyer Banner Header -->
+            <div class="bg-gradient-to-r from-emerald-600 to-teal-700 rounded-3xl p-6 text-white shadow-xl relative overflow-hidden">
+                <div class="absolute -right-10 -bottom-10 opacity-10">
+                    <i data-lucide="zap" class="w-64 h-64"></i>
+                </div>
+                <div class="relative z-10 max-w-2xl">
+                    <span class="bg-white/20 text-white text-xs px-3 py-1 rounded-full font-medium inline-block mb-2">Sektor Komersial & UMKM</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold tracking-tight">Kalkulasi, Efisiensikan, & Dapatkan Sertifikat Efisiensi Hijau</h2>
+                    <p class="mt-2 text-emerald-100 text-sm">Optimalisasi konsumsi listrik usaha Anda bersama audit akademik Universitas Negeri Malang.</p>
+                    <div class="mt-4 flex flex-wrap gap-3">
+                        <button onclick="showBuyerTab('kalkulator')" class="bg-white text-emerald-700 hover:bg-emerald-50 px-4 py-2 rounded-xl font-bold text-sm shadow transition flex items-center gap-2">
+                            <i data-lucide="calculator" class="w-4 h-4"></i> Simulasi Kalkulator AI
+                        </button>
+                        <button onclick="openCertificateModal()" class="bg-emerald-800/60 hover:bg-emerald-800 border border-emerald-400 text-white px-4 py-2 rounded-xl font-semibold text-sm transition flex items-center gap-2">
+                            <i data-lucide="award" class="w-4 h-4 text-yellow-300"></i> Sertifikat Saya
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUYER SUB-NAVIGATION TABS -->
+            <div class="flex border-b border-gray-200 dark:border-gray-700 overflow-x-auto hide-scrollbar space-x-6">
+                <button onclick="showBuyerTab('dashboard')" id="btnBuyerDash" class="buyer-tab-btn py-3 font-semibold text-sm border-b-2 border-brand-500 text-brand-600 dark:text-brand-400 whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="layout-dashboard" class="w-4 h-4"></i> Ringkasan Energi
+                </button>
+                <button onclick="showBuyerTab('kalkulator')" id="btnBuyerCalc" class="buyer-tab-btn py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="calculator" class="w-4 h-4"></i> Kalkulator Efisiensi AI
+                </button>
+                <button onclick="showBuyerTab('marketplace')" id="btnBuyerMarket" class="buyer-tab-btn py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="shopping-bag" class="w-4 h-4"></i> Marketplace Perangkat
+                </button>
+                <button onclick="showBuyerTab('audit')" id="btnBuyerAudit" class="buyer-tab-btn py-3 font-medium text-sm border-b-2 border-transparent text-gray-500 hover:text-gray-700 dark:text-gray-400 whitespace-nowrap flex items-center gap-2">
+                    <i data-lucide="clipboard-check" class="w-4 h-4"></i> Ajukan Audit Jasa
+                </button>
+            </div>
+
+            <!-- BUYER TAB 1: DASHBOARD -->
+            <div id="tabBuyerDashboard" class="space-y-6">
+                
+                <!-- CERTIFICATE CARD HIGHLIGHT (Sertifikat Pembeli di Dashboard) -->
+                <div class="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-gray-800 dark:to-gray-800/80 border border-amber-200 dark:border-amber-900/40 rounded-2xl p-5 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-16 h-16 rounded-2xl bg-amber-500/10 dark:bg-amber-500/20 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0 border border-amber-300 dark:border-amber-700">
+                            <i data-lucide="award" class="w-10 h-10"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-2">
+                                <span class="bg-amber-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full uppercase">Grade Gold</span>
+                                <span class="text-xs font-semibold text-gray-500">Skor Audit: 88/100</span>
+                            </div>
+                            <h3 class="text-lg font-bold text-gray-900 dark:text-white">Sertifikat Efisiensi Energi Komersial</h3>
+                            <p class="text-xs text-gray-600 dark:text-gray-400">Diterbitkan untuk: <strong class="text-gray-800 dark:text-gray-200">Kedai Kopi Hijau</strong> • Validasi FT UM Elektro</p>
+                        </div>
+                    </div>
+                    <div class="flex items-center gap-2 w-full md:w-auto">
+                        <button onclick="openCertificateModal()" class="w-full md:w-auto bg-amber-600 hover:bg-amber-700 text-white font-medium text-xs px-4 py-2.5 rounded-xl transition flex items-center justify-center gap-2 shadow">
+                            <i data-lucide="eye" class="w-4 h-4"></i> Lihat & Download Sertifikat
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Stats Summary Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-500 font-medium">Estimasi Listrik Bulan Ini</p>
+                        <h4 class="text-xl font-extrabold text-gray-900 dark:text-white mt-1">Rp 4.250.000</h4>
+                        <span class="text-xs text-emerald-600 font-medium flex items-center gap-1 mt-2">
+                            <i data-lucide="trending-down" class="w-3.5 h-3.5"></i> Hemat 18% dari bulan lalu
+                        </span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-500 font-medium">Reduksi Karbon (CO2e)</p>
+                        <h4 class="text-xl font-extrabold text-brand-600 dark:text-brand-400 mt-1">1.420 kg/bln</h4>
+                        <span class="text-xs text-gray-400 mt-2 block">Ekuivalen 32 Pohon Ditanam</span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-500 font-medium">Status Audit Bangunan</p>
+                        <h4 class="text-xl font-extrabold text-emerald-600 mt-1">Terverifikasi (UM)</h4>
+                        <span class="text-xs text-gray-400 mt-2 block">Tgl Audit: 12 Oktober 2026</span>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <p class="text-xs text-gray-500 font-medium">Perangkat Efisien Aktif</p>
+                        <h4 class="text-xl font-extrabold text-blue-600 mt-1">14 Unit</h4>
+                        <span class="text-xs text-gray-400 mt-2 block">Inverter & LED Smart System</span>
+                    </div>
+                </div>
+
+                <!-- Chart Visualizations -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <h4 class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm flex items-center justify-between">
+                            <span>Grafik Konsumsi Energi (Sebelum vs Sesudah Optimization)</span>
+                            <span class="text-xs text-gray-400 font-normal">kWh/Bulan</span>
+                        </h4>
+                        <div class="relative h-64">
+                            <canvas id="buyerDashboardChart"></canvas>
+                        </div>
+                    </div>
+                    <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                        <h4 class="font-bold text-gray-800 dark:text-gray-100 mb-4 text-sm">Proporsi Penggunaan Energi Utama</h4>
+                        <div class="relative h-64">
+                            <canvas id="buyerPieChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUYER TAB 2: KALKULATOR EFFISIENSI AI & RECOMMENDATION -->
+            <div id="tabBuyerKalkulator" class="hidden space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm">
+                    <div class="max-w-2xl">
+                        <h3 class="text-lg font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                            <i data-lucide="cpu" class="w-5 h-5 text-brand-600"></i>
+                            Kalkulator Efisiensi Energi Komersial & Sistem Rekomendasi AI
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mt-1">Masukkan parameter beban komersial usaha Anda untuk menghitung ROI retrofit dan produk rekomendasi otomatis.</p>
+                    </div>
+
+                    <!-- Calculator Inputs Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6">
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Jenis Usaha Commercial</label>
+                            <select id="calcType" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                                <option value="cafe">Kedai Kopi / Restoran</option>
+                                <option value="retail">Minimarket / Retail Store</option>
+                                <option value="office">Kantor Komersial / Co-Working</option>
+                                <option value="hotel">Hotel / Penginapan</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Tagihan Listrik Bulanan (Rp)</label>
+                            <input type="number" id="calcBill" value="5000000" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white" />
+                        </div>
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Daya Terpasang (VA)</label>
+                            <select id="calcDaya" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs text-gray-900 dark:text-white">
+                                <option value="3500">3.500 VA</option>
+                                <option value="6600" selected>6.600 VA</option>
+                                <option value="11000">11.000 VA</option>
+                                <option value="22000">22.000 VA+</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="mt-4 flex justify-end">
+                        <button onclick="calculateEfficiency()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-sm px-6 py-3 rounded-xl transition shadow-lg shadow-brand-500/20 flex items-center gap-2">
+                            <i data-lucide="sparkles" class="w-4 h-4"></i> Hitung Output & Rekomendasi AI
+                        </button>
+                    </div>
+
+                    <!-- Calculator Output Results Section -->
+                    <div id="calcResults" class="mt-8 pt-6 border-t dark:border-gray-700 space-y-6">
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                            <div class="bg-emerald-50 dark:bg-emerald-950/40 p-4 rounded-xl border border-emerald-200 dark:border-emerald-800">
+                                <p class="text-xs text-emerald-800 dark:text-emerald-300 font-medium">Estimasi Penghematan/Bulan</p>
+                                <p class="text-xl font-black text-emerald-600 dark:text-emerald-400 mt-1" id="resSaving">Rp 1.450.000</p>
+                                <p class="text-[11px] text-emerald-700 dark:text-emerald-400 mt-1">Penurunan ± 29% beban listrik</p>
+                            </div>
+                            <div class="bg-blue-50 dark:bg-blue-950/40 p-4 rounded-xl border border-blue-200 dark:border-blue-800">
+                                <p class="text-xs text-blue-800 dark:text-blue-300 font-medium">Estimasi Payback Period (ROI)</p>
+                                <p class="text-xl font-black text-blue-600 dark:text-blue-400 mt-1" id="resROI">6.2 Bulan</p>
+                                <p class="text-[11px] text-blue-700 dark:text-blue-400 mt-1">Pengembalian modal cepat</p>
+                            </div>
+                            <div class="bg-purple-50 dark:bg-purple-950/40 p-4 rounded-xl border border-purple-200 dark:border-purple-800">
+                                <p class="text-xs text-purple-800 dark:text-purple-300 font-medium">Pengurangan CO2 / Tahun</p>
+                                <p class="text-xl font-black text-purple-600 dark:text-purple-400 mt-1" id="resCO2">5.82 Ton CO2e</p>
+                                <p class="text-[11px] text-purple-700 dark:text-purple-400 mt-1">Mendukung ESG Komersial</p>
+                            </div>
+                        </div>
+
+                        <!-- Dynamic Comparison Chart in Calculator -->
+                        <div class="bg-gray-50 dark:bg-gray-900/50 p-4 rounded-2xl border border-gray-200 dark:border-gray-700">
+                            <h4 class="font-semibold text-xs text-gray-700 dark:text-gray-300 mb-3">Simulasi Proyeksi Penghematan Akumulatif (12 Bulan)</h4>
+                            <div class="relative h-56">
+                                <canvas id="calcComparisonChart"></canvas>
+                            </div>
+                        </div>
+
+                        <!-- FEATURE 2 REQ: REKOMENDASI PRODUK AI OTOMATIS SELESAI MENGHITUNG -->
+                        <div class="mt-8 pt-6 border-t border-brand-200 dark:border-brand-900/50">
+                            <div class="flex items-center justify-between mb-4">
+                                <div class="flex items-center space-x-2">
+                                    <div class="p-2 bg-brand-500 text-white rounded-xl">
+                                        <i data-lucide="bot" class="w-5 h-5"></i>
+                                    </div>
+                                    <div>
+                                        <h3 class="font-bold text-gray-900 dark:text-white text-base">Rekomendasi Perangkat Hemat Energi AI</h3>
+                                        <p class="text-xs text-gray-500">Disesuaikan otomatis berdasarkan kalkulasi profil usaha & daya Anda</p>
+                                    </div>
+                                </div>
+                                <span class="text-xs bg-brand-100 text-brand-700 dark:bg-brand-900/60 dark:text-brand-300 px-3 py-1 rounded-full font-bold">3 Perangkat Terpilih</span>
+                            </div>
+
+                            <div id="aiProductRecommendations" class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                <!-- Generated by JS based on calculator run -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BUYER TAB 3: MARKETPLACE -->
+            <div id="tabBuyerMarketplace" class="hidden space-y-6">
+                <!-- Search & Filter Bar -->
+                <div class="flex flex-col sm:flex-row gap-3">
+                    <div class="relative flex-1">
+                        <i data-lucide="search" class="w-4 h-4 absolute left-3 top-3.5 text-gray-400"></i>
+                        <input type="text" placeholder="Cari perangkat hemat energi, HVAC, Inverter..." class="w-full pl-9 pr-4 py-2.5 text-xs rounded-xl bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 focus:outline-none focus:ring-2 focus:ring-brand-500" />
+                    </div>
+                    <select class="bg-white dark:bg-gray-800 text-xs px-3 py-2.5 rounded-xl border border-gray-200 dark:border-gray-700">
+                        <option>Semua Kategori</option>
+                        <option>AC Inverter Komersial</option>
+                        <option>Pencahayaan LED High-Bay</option>
+                        <option>Power Factor Saver (Cos φ)</option>
+                        <option>Smart IoT Energy Monitor</option>
+                    </select>
+                </div>
+
+                <!-- Products Grid -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="marketplaceGrid">
+                    <!-- Populated by JS -->
+                </div>
+            </div>
+
+            <!-- BUYER TAB 4: AJUKAN AUDIT -->
+            <div id="tabBuyerAudit" class="hidden space-y-6">
+                <div class="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700 shadow-sm max-w-3xl mx-auto">
+                    <div class="flex items-center space-x-3 pb-4 border-b dark:border-gray-700 mb-6">
+                        <div class="p-3 bg-brand-100 dark:bg-brand-900/50 text-brand-600 rounded-xl">
+                            <i data-lucide="building-2" class="w-6 h-6"></i>
+                        </div>
+                        <div>
+                            <h3 class="font-bold text-gray-900 dark:text-white text-lg">Pengajuan Jasa Audit Efisiensi Energi</h3>
+                            <p class="text-xs text-gray-500">Dilakukan secara resmi oleh Tim Laboratorium Energi FT Universitas Negeri Malang</p>
+                        </div>
+                    </div>
+
+                    <form onsubmit="submitAuditRequest(event)" class="space-y-4">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Nama Usaha / Bangunan</label>
+                                <input type="text" value="Kedai Kopi Hijau - Malang" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Alamat Lokasi Usaha</label>
+                                <input type="text" value="Jl. Veteran No. 8, Lowokwaru, Kota Malang" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Luas Area Komersial (m²)</label>
+                                <input type="number" value="250" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Jadwal Audit Ditargetkan</label>
+                                <input type="date" value="2026-11-05" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-700 dark:text-gray-300 mb-1">Catatan Keluhan / Target Efisiensi</label>
+                            <textarea rows="3" placeholder="Contoh: Tagihan AC tinggi saat jam operasional malam, ingin penghematan minimal 20%..." class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs"></textarea>
+                        </div>
+
+                        <div class="p-4 bg-brand-50 dark:bg-brand-950/30 rounded-xl border border-brand-200 dark:border-brand-800 text-xs text-brand-800 dark:text-brand-300 flex items-start gap-2">
+                            <i data-lucide="info" class="w-4 h-4 text-brand-600 shrink-0 mt-0.5"></i>
+                            <p>Biaya Jasa Audit Escrow disimpan aman di sistem EcoFacility dan baru diteruskan ke Tim Auditor UM setelah sertifikat terbit.</p>
+                        </div>
+
+                        <button type="submit" class="w-full bg-brand-600 hover:bg-brand-700 text-white font-bold py-3 rounded-xl transition shadow">
+                            Kirim Pengajuan Audit (Rp 2.500.000)
+                        </button>
+                    </form>
+                </div>
+            </div>
+
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- ROLE 2: VENDOR SECTION                     -->
+        <!-- ========================================== -->
+        <section id="roleVendorView" class="hidden space-y-6">
+            <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-200 dark:border-gray-700">
+                <div>
+                    <h2 class="text-xl font-bold text-gray-900 dark:text-white flex items-center gap-2">
+                        <span>Dashboard Vendor Official</span>
+                        <span class="text-xs bg-emerald-100 text-emerald-800 font-medium px-2.5 py-0.5 rounded-full">Terverifikasi</span>
+                    </h2>
+                    <p class="text-xs text-gray-500">PT EcoTech Solusindo • ID Vendor: V-88912</p>
+                </div>
+                <button onclick="openModalAddProduct()" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                    <i data-lucide="plus" class="w-4 h-4"></i> Tambah Produk Baru
+                </button>
+            </div>
+
+            <!-- Vendor Metrics Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Total Penjualan</p>
+                    <h3 class="text-xl font-black text-gray-900 dark:text-white mt-1">Rp 34.500.000</h3>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Saldo Rekening Escrow</p>
+                    <h3 class="text-xl font-black text-brand-600 dark:text-brand-400 mt-1">Rp 12.800.000</h3>
+                    <button onclick="openModalWithdraw()" class="mt-2 text-xs text-brand-600 dark:text-brand-400 font-semibold underline">Penarikan Saldo &rarr;</button>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Pesanan Masuk</p>
+                    <h3 class="text-xl font-black text-blue-600 mt-1">5 Pesanan Baru</h3>
+                </div>
+            </div>
+
+            <!-- Vendor Management Tables -->
+            <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden">
+                <div class="p-4 border-b dark:border-gray-700 font-bold text-sm text-gray-800 dark:text-white">Daftar Produk Hemat Energi Saya</div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left text-xs">
+                        <thead class="bg-gray-50 dark:bg-gray-700 text-gray-500 dark:text-gray-300">
+                            <tr>
+                                <th class="p-3">Nama Produk</th>
+                                <th class="p-3">Kategori</th>
+                                <th class="p-3">Harga</th>
+                                <th class="p-3">Estimasi Hemat</th>
+                                <th class="p-3">Stok</th>
+                                <th class="p-3">Aksi</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y dark:divide-gray-700 text-gray-700 dark:text-gray-200" id="vendorProductTable">
+                            <!-- Populated dynamically -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- ROLE 3: AUDITOR (UM) SECTION               -->
+        <!-- ========================================== -->
+        <section id="roleAuditorView" class="hidden space-y-6">
+            <div class="bg-gradient-to-r from-blue-900 to-indigo-900 text-white p-6 rounded-3xl shadow-lg">
+                <div class="flex items-center space-x-3 mb-2">
+                    <span class="bg-blue-400/20 text-blue-200 text-xs px-2.5 py-0.5 rounded-full font-semibold border border-blue-400/30">Fakultas Teknik UM</span>
+                    <span class="text-xs text-gray-300">• Tim Riset Teknik Elektro</span>
+                </div>
+                <h2 class="text-2xl font-bold">Portal Auditor Efisiensi Energi Terakreditasi</h2>
+                <p class="text-xs text-blue-100 mt-1">Sistem Input Parameter Pengukuran Lapangan & Penerbitan Sertifikat Grade Hijau</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Schedule / Task List -->
+                <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="font-bold text-sm text-gray-900 dark:text-white mb-3">Tugas Audit Aktif</h3>
+                    <div class="space-y-3">
+                        <div class="p-3 bg-brand-50 dark:bg-brand-950/30 rounded-xl border border-brand-200 dark:border-brand-800">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-xs text-brand-900 dark:text-brand-300">Kedai Kopi Hijau</h4>
+                                <span class="bg-brand-500 text-white text-[10px] px-2 py-0.5 rounded">Proses Input</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-1">Malang • Target Audit: 24 Okt 2026</p>
+                        </div>
+                        <div class="p-3 bg-gray-50 dark:bg-gray-700/50 rounded-xl border border-gray-200 dark:border-gray-600">
+                            <div class="flex justify-between items-start">
+                                <h4 class="font-bold text-xs text-gray-800 dark:text-gray-200">Minimarket EcoMart</h4>
+                                <span class="bg-yellow-500 text-white text-[10px] px-2 py-0.5 rounded">Terjadwal</span>
+                            </div>
+                            <p class="text-[11px] text-gray-500 mt-1">Batu • Target Audit: 28 Okt 2026</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Measurement Input Form -->
+                <div class="lg:col-span-2 bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-100 dark:border-gray-700">
+                    <h3 class="font-bold text-base text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+                        <i data-lucide="gauge" class="w-5 h-5 text-brand-600"></i> Form Input Alat Ukur Lapangan (Lux, Cos φ, Volt, Ampere)
+                    </h3>
+                    <form onsubmit="submitAuditorMeasurement(event)" class="space-y-4">
+                        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Tegangan (Volt)</label>
+                                <input type="number" id="audVolt" value="220" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Arus (Ampere)</label>
+                                <input type="number" id="audAmpere" value="28.5" step="0.1" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Faktor Daya (Cos φ)</label>
+                                <input type="number" id="audCos" value="0.92" step="0.01" min="0" max="1" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2 text-xs" />
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Intensitas (Lux)</label>
+                                <input type="number" id="audLux" value="350" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2 text-xs" />
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Rekomendasi Grade Sertifikat</label>
+                                <select id="audGrade" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs">
+                                    <option value="Gold">Grade GOLD (Skor 85 - 100)</option>
+                                    <option value="Silver">Grade SILVER (Skor 70 - 84)</option>
+                                    <option value="Bronze">Grade BRONZE (Skor 50 - 69)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Skor Akhir Audit</label>
+                                <input type="number" id="audScore" value="88" min="0" max="100" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" />
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-[11px] font-semibold text-gray-600 dark:text-gray-400 mb-1">Catatan Auditor Akademik UM</label>
+                            <textarea rows="2" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5 text-xs" placeholder="Instalasi listrik sudah memenuhi kriteria SNI, perlu penggantian 2 unit AC konvensional...">Instalasi listrik stabil, efisiensi tinggi dengan Cos φ 0.92. Direkomendasikan kelayakan Sertifikat Grade Gold.</textarea>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-2.5 rounded-xl transition text-xs flex items-center justify-center gap-2">
+                            <i data-lucide="check-circle" class="w-4 h-4"></i> Simpan Laporan & Realisasikan Sertifikat Pembeli
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </section>
+
+
+        <!-- ========================================== -->
+        <!-- ROLE 4: ADMIN SECTION                      -->
+        <!-- ========================================== -->
+        <section id="roleAdminView" class="hidden space-y-6">
+            <div class="bg-gray-900 text-white p-6 rounded-3xl flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold flex items-center gap-2">
+                        <i data-lucide="shield-alert" class="w-6 h-6 text-brand-400"></i> Panel Control Admin EcoFacility
+                    </h2>
+                    <p class="text-xs text-gray-400 mt-1">Moderasi Verifikasi KYC, Escrow, & Log Aktivitas Realtime</p>
+                </div>
+                <span class="bg-brand-500/20 text-brand-400 border border-brand-500/30 text-xs px-3 py-1 rounded-full font-mono">System Active</span>
+            </div>
+
+            <!-- Admin Stats -->
+            <div class="grid grid-cols-1 sm:grid-cols-4 gap-4">
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Pending KYC Pembeli</p>
+                    <h4 class="text-lg font-bold text-orange-500 mt-1">3 Berkas</h4>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Escrow Tertahan</p>
+                    <h4 class="text-lg font-bold text-gray-900 dark:text-white mt-1">Rp 48.200.000</h4>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Moderasi Produk</p>
+                    <h4 class="text-lg font-bold text-blue-500 mt-1">2 Menunggu Approval</h4>
+                </div>
+                <div class="bg-white dark:bg-gray-800 p-4 rounded-xl border border-gray-100 dark:border-gray-700">
+                    <p class="text-xs text-gray-500">Sertifikat Terbit</p>
+                    <h4 class="text-lg font-bold text-brand-600 dark:text-brand-400 mt-1">128 Sertifikat</h4>
+                </div>
+            </div>
+
+            <!-- Admin Activity Log -->
+            <div class="bg-white dark:bg-gray-800 p-5 rounded-2xl border border-gray-100 dark:border-gray-700">
+                <h3 class="font-bold text-sm text-gray-900 dark:text-white mb-3">Log Aktivitas Platform Terbaru</h3>
+                <div class="space-y-2 text-xs font-mono text-gray-600 dark:text-gray-300">
+                    <p class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded flex justify-between">
+                        <span>[10:42:01] Sertifikat Gold diterbitkan untuk Kedai Kopi Hijau (FT UM Validated)</span>
+                        <span class="text-brand-500">SUCCESS</span>
+                    </p>
+                    <p class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded flex justify-between">
+                        <span>[09:15:22] Vendor PT EcoTech Solusindo mengajukan penarikan dana Escrow Rp 12.800.000</span>
+                        <span class="text-amber-500">PENDING</span>
+                    </p>
+                    <p class="p-2 bg-gray-50 dark:bg-gray-700/50 rounded flex justify-between">
+                        <span>[08:30:10] KYC Verifikasi Pembeli 'Kopi Hijau' disetujui Admin</span>
+                        <span class="text-brand-500">VERIFIED</span>
+                    </p>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ========================================== -->
+    <!-- MODALS & BOTTOM SHEETS                     -->
+    <!-- ========================================== -->
+
+    <!-- FEATURE 1 REQ: MODAL PRATINJAU SERTIFIKAT EFIENSI ENERGI (PEMBELI) -->
+    <div id="certificateModal" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-3 overflow-y-auto">
+        <div class="bg-white dark:bg-gray-900 w-full max-w-3xl rounded-3xl shadow-2xl overflow-hidden my-auto border border-amber-300/30">
+            <!-- Modal Header Controls -->
+            <div class="bg-gray-100 dark:bg-gray-800 px-6 py-4 flex items-center justify-between border-b dark:border-gray-700">
+                <div class="flex items-center space-x-2">
+                    <i data-lucide="award" class="w-5 h-5 text-amber-500"></i>
+                    <h3 class="font-bold text-gray-900 dark:text-white text-sm">Pratinjau Sertifikat Efisiensi Energi</h3>
+                </div>
+                <button onclick="closeCertificateModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white p-1 rounded-lg">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+            </div>
+
+            <!-- PRINTABLE CERTIFICATE CARD BODY -->
+            <div class="p-6 sm:p-10 bg-white text-gray-900" id="printableCertificate">
+                <div class="border-8 border-double border-amber-600/60 p-6 sm:p-8 rounded-2xl relative bg-[radial-gradient(#fef3c7_1px,transparent_1px)] [background-size:16px_16px]">
+                    
+                    <!-- Watermark / Academic Header -->
+                    <div class="text-center border-b-2 border-amber-700/20 pb-6 mb-6">
+                        <div class="flex items-center justify-center space-x-3 mb-2">
+                            <i data-lucide="leaf" class="w-8 h-8 text-emerald-600"></i>
+                            <span class="text-2xl font-black text-emerald-800 tracking-wider">EcoFacility</span>
+                        </div>
+                        <p class="text-[11px] font-bold uppercase tracking-widest text-amber-800">SERTIFIKAT EFISIENSI ENERGI KOMERSIAL</p>
+                        <p class="text-[10px] text-gray-600 font-semibold mt-0.5">Divalidasi Oleh: Universitas Negeri Malang (UM) • Fakultas Teknik • Departemen Teknik Elektro</p>
+                    </div>
+
+                    <!-- Certificate Content -->
+                    <div class="text-center space-y-4 my-6">
+                        <p class="text-xs text-gray-500 font-serif italic">Dengan ini menyatakan bahwa entitas komersial:</p>
+                        <h2 class="text-2xl sm:text-3xl font-extrabold text-gray-900 uppercase tracking-wide border-b-2 border-amber-400 inline-block px-6 pb-1" id="certBuyerName">KEDAI KOPI HIJAU</h2>
+                        <p class="text-xs text-gray-600 max-w-md mx-auto">Telah melalui proses audit efisiensi energi komprehensif, pengukuran Cos φ, rasio intensitas cahaya Lux, dan memenuhi kriteria standar keberlanjutan energi nasional.</p>
+                    </div>
+
+                    <!-- Grade Badge & Metrics -->
+                    <div class="my-8 flex flex-col sm:flex-row items-center justify-around bg-amber-50/80 border border-amber-200 rounded-2xl p-4 gap-4">
+                        <div class="text-center">
+                            <p class="text-[10px] text-amber-800 font-bold uppercase">Predikat Grade</p>
+                            <span class="text-2xl font-black text-amber-600" id="certGradeText">GRADE GOLD</span>
+                        </div>
+                        <div class="h-8 w-px bg-amber-300 hidden sm:block"></div>
+                        <div class="text-center">
+                            <p class="text-[10px] text-amber-800 font-bold uppercase">Skor Efisiensi Audit</p>
+                            <span class="text-2xl font-black text-emerald-700" id="certScoreText">88 / 100</span>
+                        </div>
+                        <div class="h-8 w-px bg-amber-300 hidden sm:block"></div>
+                        <div class="text-center">
+                            <p class="text-[10px] text-amber-800 font-bold uppercase">Tanggal Terbit</p>
+                            <span class="text-xs font-bold text-gray-800" id="certDateText">24 Oktober 2026</span>
+                        </div>
+                    </div>
+
+                    <!-- Signatures -->
+                    <div class="mt-8 pt-4 flex justify-between items-end text-center px-4">
+                        <div class="text-left">
+                            <p class="text-[9px] text-gray-400 font-mono">Digital Hash ID:</p>
+                            <p class="text-[10px] font-mono font-bold text-gray-600">ECF-UM-2026-9948271</p>
+                        </div>
+                        <div>
+                            <div class="w-32 h-12 border-b border-gray-800 mx-auto flex items-center justify-center text-xs font-serif italic text-emerald-800">
+                                [ Signed Digitally ]
+                            </div>
+                            <p class="text-xs font-bold text-gray-800 mt-1">Tim Audit Teknik Elektro UM</p>
+                            <p class="text-[10px] text-gray-500">Universitas Negeri Malang</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Modal Action Buttons (Download PNG/PDF & Print) -->
+            <div class="bg-gray-50 dark:bg-gray-800 px-6 py-4 border-t dark:border-gray-700 flex flex-wrap gap-3 justify-end">
+                <button onclick="downloadCertificatePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2 shadow">
+                    <i data-lucide="download" class="w-4 h-4"></i> Download PDF Sertifikat
+                </button>
+                <button onclick="printCertificate()" class="bg-gray-800 hover:bg-gray-900 text-white font-bold text-xs px-4 py-2.5 rounded-xl transition flex items-center gap-2">
+                    <i data-lucide="printer" class="w-4 h-4"></i> Cetak Sertifikat
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- FEATURE 4 REQ: OTP BANK ACCOUNT ADDITION MODAL (OTP: 123456) -->
+    <div id="otpModal" class="hidden fixed inset-0 z-50 bg-black/60 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl p-6 shadow-2xl">
+            <h3 class="font-bold text-base text-gray-900 dark:text-white flex items-center gap-2 mb-2">
+                <i data-lucide="shield-check" class="w-5 h-5 text-brand-500"></i> Tambah Rekening Bank / Honorarium
+            </h3>
+            <p class="text-xs text-gray-500 mb-4">Masukkan detail rekening dan verifikasi dengan Kode OTP khusus demo: <strong class="text-brand-600 font-mono">123456</strong></p>
+
+            <form onsubmit="verifyOTPAndAddBank(event)" class="space-y-3 text-xs">
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Nama Bank</label>
+                    <select id="bankName" class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5">
+                        <option>Bank Mandiri</option>
+                        <option>Bank BRI</option>
+                        <option>Bank BCA</option>
+                        <option>Bank BNI</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Nomor Rekening</label>
+                    <input type="text" id="bankAccNo" value="144009823123" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-gray-700 dark:text-gray-300">Nama Pemilik Rekening</label>
+                    <input type="text" id="bankAccName" value="Kedai Kopi Hijau / UM Partner" required class="w-full bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl p-2.5" />
+                </div>
+                <div>
+                    <label class="block font-semibold mb-1 text-brand-600 dark:text-brand-400">Kode OTP Verifikasi (Gunakan: 123456)</label>
+                    <input type="text" id="otpInput" maxlength="6" placeholder="123456" required class="w-full bg-brand-50 dark:bg-gray-700 border-2 border-brand-500 rounded-xl p-2.5 font-mono text-center text-base tracking-widest font-bold" />
+                </div>
+
+                <div class="flex justify-end gap-2 pt-3">
+                    <button type="button" onclick="closeOTPModal()" class="px-4 py-2 rounded-xl text-gray-500 font-medium hover:bg-gray-100 dark:hover:bg-gray-700">Batal</button>
+                    <button type="submit" class="px-5 py-2 rounded-xl bg-brand-600 text-white font-bold hover:bg-brand-700 shadow">Verifikasi & Simpan</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- CHAT VENDOR MODAL -->
+    <div id="chatModal" class="hidden fixed inset-0 z-50 bg-black/50 backdrop-blur-sm flex items-center justify-center p-4">
+        <div class="bg-white dark:bg-gray-800 w-full max-w-md rounded-2xl shadow-2xl flex flex-col h-[500px]">
+            <div class="p-4 border-b dark:border-gray-700 flex justify-between items-center bg-gray-50 dark:bg-gray-700/50 rounded-t-2xl">
+                <div>
+                    <h4 class="font-bold text-sm text-gray-900 dark:text-white" id="chatVendorTitle">Vendor Official PT EcoTech</h4>
+                    <p class="text-[10px] text-emerald-600 font-semibold">● Online • Respon Cepat</p>
+                </div>
+                <button onclick="closeChatModal()" class="text-gray-400 hover:text-gray-600 dark:hover:text-white"><i data-lucide="x" class="w-5 h-5"></i></button>
+            </div>
+            <div class="flex-1 p-4 overflow-y-auto space-y-3 text-xs" id="chatMessages">
+                <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl max-w-[80%] text-gray-800 dark:text-gray-200">
+                    Halo! Ada yang bisa kami bantu terkait produk efisiensi energi atau konsultasi daya komersial?
+                </div>
+            </div>
+            <form onsubmit="sendChatMessage(event)" class="p-3 border-t dark:border-gray-700 flex gap-2">
+                <input type="text" id="chatInput" placeholder="Ketik pesan..." required class="flex-1 bg-gray-50 dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-xl px-3 py-2 text-xs" />
+                <button type="submit" class="bg-brand-600 text-white px-4 rounded-xl font-bold text-xs"><i data-lucide="send" class="w-4 h-4"></i></button>
+            </form>
+        </div>
+    </div>
+
+    <!-- TOAST NOTIFICATION -->
+    <div id="toast" class="fixed bottom-20 left-1/2 -translate-x-1/2 z-50 hidden bg-gray-900 text-white px-5 py-3 rounded-2xl shadow-2xl text-xs font-semibold flex items-center space-x-2 border border-gray-700">
+        <i data-lucide="check-circle" class="w-4 h-4 text-emerald-400"></i>
+        <span id="toastMsg">Notifikasi EcoFacility</span>
+    </div>
+
+    <!-- BOTTOM TAB BAR (5 DYNAMIC TABS BASED ON ROLE) -->
+    <nav class="fixed bottom-0 left-0 right-0 z-40 bg-white/95 dark:bg-gray-800/95 backdrop-blur-md border-t border-gray-200 dark:border-gray-700 px-2 py-1.5">
+        <div class="max-w-md mx-auto flex justify-around items-center" id="bottomTabContainer">
+            <!-- Populated by JS according to Active Role -->
+        </div>
+    </nav>
+
+    <!-- ========================================== -->
+    <!-- APPLICATION JAVASCRIPT LOGIC               -->
+    <!-- ========================================== -->
+    <script>
+        // ==========================================
+        // SISTEM AUTENTIKASI LOGIN & LOGOUT
+        // ==========================================
+        function handleLoginSubmit(event) {
+            event.preventDefault();
+            
+            const selectedRole = document.getElementById('loginRole').value;
+            const email = document.getElementById('loginEmail').value;
+
+            // Simpan sesi login di browser
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', selectedRole);
+            localStorage.setItem('userEmail', email);
+
+            // Sembunyikan layar login fullscreen
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) {
+                loginScreen.classList.add('hidden');
+            }
+// Fungsi untuk membuka halaman Register dari Login
+        function showRegister() {
+            document.getElementById('loginScreen').classList.add('hidden');
+            document.getElementById('registerScreen').classList.remove('hidden');
+        }
+
+        // Fungsi untuk kembali ke Login dari Register
+        function showLoginFromRegister() {
+            document.getElementById('registerScreen').classList.add('hidden');
+            document.getElementById('loginScreen').classList.remove('hidden');
+        }
+
+        // Fungsi Proses Pendaftaran Akun Baru
+        function handleRegisterSubmit(event) {
+            event.preventDefault();
+            const role = document.getElementById('regRole').value;
+            const name = document.getElementById('regName').value;
+            const email = document.getElementById('regEmail').value;
+
+            // Simpan sesi pendaftaran ke browser
+            localStorage.setItem('isLoggedIn', 'true');
+            localStorage.setItem('userRole', role);
+            localStorage.setItem('userEmail', email);
+
+            // Sembunyikan layar pendaftaran
+            document.getElementById('registerScreen').classList.add('hidden');
+
+            // Sesuaikan role aktif di dashboard
+            currentRole = role;
+            const roleSelector = document.getElementById('roleSelector');
+            if (roleSelector) roleSelector.value = role;
+            updateRoleUI(role);
+
+            if (typeof showToast === 'function') {
+                showToast(`Registrasi berhasil! Selamat datang, ${name}`);
+            }
+        }
+
+            // Ganti role aktif sesuai pilihan saat login
+            currentRole = selectedRole;
+            const roleSelector = document.getElementById('roleSelector');
+            if (roleSelector) {
+                roleSelector.value = selectedRole;
+            }
+            
+            // Panggil fungsi penyesuaian UI milikmu
+            updateRoleUI(selectedRole);
+
+            if (typeof showToast === 'function') {
+                showToast(`Berhasil masuk sebagai: ${selectedRole.toUpperCase()}`);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('isLoggedIn');
+            localStorage.removeItem('userRole');
+            localStorage.removeItem('userEmail');
+            
+            const loginScreen = document.getElementById('loginScreen');
+            if (loginScreen) {
+                loginScreen.classList.remove('hidden');
+            }
+            if (typeof showToast === 'function') {
+                showToast('Anda telah keluar dari sistem.');
+            }
+        }
+        // GLOBAL APP STATE
+        let currentRole = 'pembeli';
+        let currentCertData = {
+            name: "Kedai Kopi Hijau",
+            grade: "GOLD",
+            score: "88",
+            date: "24 Oktober 2026"
+        };
+
+        // MOCK PRODUCTS DATA
+        const mockProducts = [
+            {
+                id: 1,
+                title: "AC Inverter VRF Komersial 5 PK",
+                vendor: "PT EcoTech Solusindo",
+                price: "Rp 18.500.000",
+                saving: "Rp 650.000/bln",
+                roi: "7.5 Bulan",
+                rating: "4.9",
+                img: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=400&q=80"
+            },
+            {
+                id: 2,
+                title: "Power Factor Saver Cos φ 0.98",
+                vendor: "Energi Jaya Komersial",
+                price: "Rp 4.200.000",
+                saving: "Rp 320.000/bln",
+                roi: "5.1 Bulan",
+                rating: "4.8",
+                img: "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=400&q=80"
+            },
+            {
+                id: 3,
+                title: "Smart IoT Energy Monitor Meter",
+                vendor: "Lab Elektro UM Spin-off",
+                price: "Rp 2.100.000",
+                saving: "Rp 180.000/bln",
+                roi: "4.0 Bulan",
+                rating: "5.0",
+                img: "https://images.unsplash.com/photo-1558002038-1055907df827?auto=format&fit=crop&w=400&q=80"
+            }
+        ];
+
+        // CHART INSTANCES
+        let chartDash, chartPie, chartCalc;
+
+        // INITIALIZATION
+        window.onload = function() { // INITIALIZATION
+        window.onload = function() {
+            lucide.createIcons();
+            initCharts();
+            renderMarketplace();
+            renderVendorProducts();
+            
+            // --- SISIPKAN KODE PENGECEKAN LOGIN INI DI SINI ---
+            const isLoggedIn = localStorage.getItem('isLoggedIn');
+            const savedRole = localStorage.getItem('userRole');
+            const loginScreen = document.getElementById('loginScreen');
+
+            if (isLoggedIn === 'true' && savedRole) {
+                if (loginScreen) loginScreen.classList.add('hidden');
+                currentRole = savedRole;
+                if (document.getElementById('roleSelector')) {
+                    document.getElementById('roleSelector').value = savedRole;
+                }
+                updateRoleUI(savedRole);
+            } else {
+                if (loginScreen) loginScreen.classList.remove('hidden');
+            }
+            // ------------------------------------------------
+        };
+            lucide.createIcons();
+            initCharts();
+            renderMarketplace();
+            renderVendorProducts();
+            updateRoleUI('pembeli');
+        };
+
+        // THEME TOGGLE
+        function toggleTheme() {
+            document.documentElement.classList.toggle('dark');
+        }
+
+        // SHOW TOAST
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMsg').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => toast.classList.add('hidden'), 3000);
+        }
+
+        // ROLE SWITCHER WITH SPLASH TRANSITION
+        function switchRole(role) {
+            const loader = document.getElementById('splashLoader');
+            document.getElementById('splashText').innerText = `Mengaktifkan Modul Role ${role.toUpperCase()}...`;
+            loader.classList.remove('hidden');
+
+            setTimeout(() => {
+                currentRole = role;
+                updateRoleUI(role);
+                loader.classList.add('hidden');
+                showToast(`Role berhasil diubah ke: ${role.toUpperCase()}`);
+            }, 500);
+        }
+
+        // UPDATE UI DEPENDING ON ROLE
+        function updateRoleUI(role) {
+            // Hide all role sections
+            document.getElementById('rolePembeliView').classList.add('hidden');
+            document.getElementById('roleVendorView').classList.add('hidden');
+            document.getElementById('roleAuditorView').classList.add('hidden');
+            document.getElementById('roleAdminView').classList.add('hidden');
+
+            // Show selected role section
+            if(role === 'pembeli') document.getElementById('rolePembeliView').classList.remove('hidden');
+            if(role === 'vendor') document.getElementById('roleVendorView').classList.remove('hidden');
+            if(role === 'auditor') document.getElementById('roleAuditorView').classList.remove('hidden');
+            if(role === 'admin') document.getElementById('roleAdminView').classList.remove('hidden');
+
+            // Render Dynamic 5 Tab Bottom Nav
+            renderBottomNav(role);
+        }
+
+        // RENDER BOTTOM NAV (5 TABS DYNAMIC PER ROLE)
+        function renderBottomNav(role) {
+            const container = document.getElementById('bottomTabContainer');
+            let tabs = [];
+
+            if (role === 'pembeli') {
+                tabs = [
+                    { label: 'Home', icon: 'home', act: "showBuyerTab('dashboard')" },
+                    { label: 'Kalkulator', icon: 'calculator', act: "showBuyerTab('kalkulator')" },
+                    { label: 'Pasar', icon: 'shopping-bag', act: "showBuyerTab('marketplace')" },
+                    { label: 'Sertifikat', icon: 'award', act: "openCertificateModal()" },
+                    { label: 'Audit Jasa', icon: 'clipboard-check', act: "showBuyerTab('audit')" }
+                ];
+            } else if (role === 'vendor') {
+                tabs = [
+                    { label: 'Produk Saya', icon: 'package', act: "showToast('Menu Produk Vendor')" },
+                    { label: 'Pesanan', icon: 'shopping-cart', act: "showToast('Menu Pesanan Masuk')" },
+                    { label: 'Tambah', icon: 'plus-circle', act: "openModalAddProduct()" },
+                    { label: 'Rekening OTP', icon: 'credit-card', act: "openOTPModal()" },
+                    { label: 'Penarikan', icon: 'wallet', act: "openModalWithdraw()" }
+                ];
+            } else if (role === 'auditor') {
+                tabs = [
+                    { label: 'Jadwal', icon: 'calendar', act: "showToast('Jadwal Audit')" },
+                    { label: 'Input Alat Ukur', icon: 'gauge', act: "showToast('Form Pengukuran')" },
+                    { label: 'Honorarium', icon: 'credit-card', act: "openOTPModal()" },
+                    { label: 'Verifikasi UM', icon: 'check-square', act: "showToast('Status Verifikasi Akademik')" },
+                    { label: 'Log', icon: 'file-text', act: "showToast('Log Audit')" }
+                ];
+            } else if (role === 'admin') {
+                tabs = [
+                    { label: 'KYC Pembeli', icon: 'users', act: "showToast('KYC Pembeli')" },
+                    { label: 'Moderasi', icon: 'check-circle', act: "showToast('Moderasi Produk')" },
+                    { label: 'Escrow', icon: 'shield', act: "showToast('Status Escrow')" },
+                    { label: 'Sertifikat', icon: 'award', act: "openCertificateModal()" },
+                    { label: 'Log System', icon: 'activity', act: "showToast('Log Aktivitas')" }
+                ];
+            }
+
+            container.innerHTML = tabs.map(t => `
+                <button onclick="${t.act}" class="flex flex-col items-center justify-center py-1 px-2 text-gray-500 hover:text-brand-600 dark:hover:text-brand-400">
+                    <i data-lucide="${t.icon}" class="w-5 h-5"></i>
+                    <span class="text-[10px] font-medium mt-0.5">${t.label}</span>
+                </button>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // FEATURE 4 REQ: DYNAMIC 3-DOTS MENU BASED ON ACTIVE ROLE
+        function toggleDynamicMenu() {
+            const modal = document.getElementById('dynamicMenuModal');
+            const isHidden = modal.classList.contains('hidden');
+            if (isHidden) {
+                populateDynamicMenu();
+                modal.classList.remove('hidden');
+            } else {
+                modal.classList.add('hidden');
+            }
+        }
+
+        function populateDynamicMenu() {
+            const menuContent = document.getElementById('dynamicMenuContent');
+            const menuTitle = document.getElementById('menuRoleTitle');
+            menuTitle.innerText = `Menu Akses Role: ${currentRole.toUpperCase()}`;
+
+            let items = [];
+            if (currentRole === 'pembeli') {
+                items = [
+                    { label: 'Kalkulator Efisiensi Energi AI', icon: 'calculator', fn: "showBuyerTab('kalkulator')" },
+                    { label: 'Marketplace Perangkat Hemat', icon: 'shopping-bag', fn: "showBuyerTab('marketplace')" },
+                    { label: 'Keranjang Belanja Escrow', icon: 'shopping-cart', fn: "showToast('Keranjang Belanja Kosong')" },
+                    { label: 'Sertifikat Saya (Gold Grade)', icon: 'award', fn: "openCertificateModal()" },
+                    { label: 'Ajukan Jasa Audit Efisiensi', icon: 'clipboard-check', fn: "showBuyerTab('audit')" },
+                    { label: 'Pusat Verifikasi KYC Pembeli', icon: 'user-check', fn: "showToast('Status KYC: Terverifikasi')" },
+                    { label: 'Kelola Rekening & Refund (+OTP)', icon: 'credit-card', fn: "openOTPModal()" }
+                ];
+            } else if (currentRole === 'vendor') {
+                items = [
+                    { label: 'Kelola Katalog Produk', icon: 'package', fn: "showToast('Kelola Produk Aktif')" },
+                    { label: 'Pesanan Masuk & Escrow', icon: 'inbox', fn: "showToast('5 Pesanan Masuk')" },
+                    { label: 'Tambah Rekening Bank (+OTP 123456)', icon: 'plus-circle', fn: "openOTPModal()" },
+                    { label: 'Pilihan Metode Pembayaran Escrow', icon: 'credit-card', fn: "showToast('Metode Bayar Active')" },
+                    { label: 'Penarikan Saldo Hasil Jualan', icon: 'dollar-sign', fn: "openModalWithdraw()" },
+                    { label: 'Verifikasi Akun Vendor Official', icon: 'shield-check', fn: "showToast('Status Vendor: Verified')" }
+                ];
+            } else if (currentRole === 'auditor') {
+                items = [
+                    { label: 'Jadwal & Tugas Audit Lapangan', icon: 'calendar', fn: "showToast('Jadwal Aktif Terdaftar')" },
+                    { label: 'Form Input Ukur (Lux, Cos φ, Volt, Ampere)', icon: 'gauge', fn: "showToast('Gunakan Form di Dashboard')" },
+                    { label: 'Kelola Rekening Honorarium (+OTP 123456)', icon: 'credit-card', fn: "openOTPModal()" },
+                    { label: 'Status Verifikasi Mahasiswa/Peneliti UM', icon: 'graduation-cap', fn: "showToast('Verifikasi FT UM Aktif')" }
+                ];
+            } else if (currentRole === 'admin') {
+                items = [
+                    { label: 'Verifikasi KYC & Pengguna', icon: 'user-check', fn: "showToast('Panel KYC')" },
+                    { label: 'Moderasi Catalog & Perangkat', icon: 'check-square', fn: "showToast('Moderasi Produk')" },
+                    { label: 'Kelola Penugasan Audit UM', icon: 'map-pin', fn: "showToast('Penugasan Tim Audit')" },
+                    { label: 'Escrow Multi-Vendor & Pencairan Dana', icon: 'lock', fn: "showToast('Escrow Management')" },
+                    { label: 'Log Aktivitas System Realtime', icon: 'activity', fn: "showToast('System Logs')" }
+                ];
+            }
+
+            menuContent.innerHTML = items.map(item => `
+                <button onclick="${item.fn}; toggleDynamicMenu();" class="w-full text-left flex items-center space-x-3 p-3 rounded-xl hover:bg-gray-100 dark:hover:bg-gray-700 text-xs font-semibold text-gray-700 dark:text-gray-200 transition">
+                    <i data-lucide="${item.icon}" class="w-4 h-4 text-brand-600"></i>
+                    <span>${item.label}</span>
+                </button>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // BUYER TABS NAVIGATION
+        function showBuyerTab(tab) {
+            document.getElementById('tabBuyerDashboard').classList.add('hidden');
+            document.getElementById('tabBuyerKalkulator').classList.add('hidden');
+            document.getElementById('tabBuyerMarketplace').classList.add('hidden');
+            document.getElementById('tabBuyerAudit').classList.add('hidden');
+
+            document.querySelectorAll('.buyer-tab-btn').forEach(btn => {
+                btn.classList.remove('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+                btn.classList.add('border-transparent', 'text-gray-500');
+            });
+
+            if (tab === 'dashboard') {
+                document.getElementById('tabBuyerDashboard').classList.remove('hidden');
+                document.getElementById('btnBuyerDash').classList.add('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+            } else if (tab === 'kalkulator') {
+                document.getElementById('tabBuyerKalkulator').classList.remove('hidden');
+                document.getElementById('btnBuyerCalc').classList.add('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+                calculateEfficiency(); // Trigger AI Recommendations
+            } else if (tab === 'marketplace') {
+                document.getElementById('tabBuyerMarketplace').classList.remove('hidden');
+                document.getElementById('btnBuyerMarket').classList.add('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+            } else if (tab === 'audit') {
+                document.getElementById('tabBuyerAudit').classList.remove('hidden');
+                document.getElementById('btnBuyerAudit').classList.add('border-brand-500', 'text-brand-600', 'dark:text-brand-400');
+            }
+        }
+
+        // FEATURE 2 REQ: AI CALCULATOR + AUTOMATIC AI PRODUCT RECOMMENDATION
+        function calculateEfficiency() {
+            const bill = parseFloat(document.getElementById('calcBill').value) || 5000000;
+            const savingPerMonth = Math.round(bill * 0.29);
+            const roiMonths = (18500000 / savingPerMonth).toFixed(1);
+            const co2Tons = ((bill / 1500) * 12 * 0.85 / 1000).toFixed(2);
+
+            document.getElementById('resSaving').innerText = `Rp ${savingPerMonth.toLocaleString('id-ID')}`;
+            document.getElementById('resROI').innerText = `${roiMonths} Bulan`;
+            document.getElementById('resCO2').innerText = `${co2Tons} Ton CO2e`;
+
+            // Update Comparison Chart
+            if (chartCalc) {
+                chartCalc.data.datasets[0].data = [bill*1, bill*2, bill*3, bill*4, bill*5, bill*6];
+                chartCalc.data.datasets[1].data = [(bill*0.71)*1, (bill*0.71)*2, (bill*0.71)*3, (bill*0.71)*4, (bill*0.71)*5, (bill*0.71)*6];
+                chartCalc.update();
+            }
+
+            // Render AI Product Recommendations right below output
+            const recContainer = document.getElementById('aiProductRecommendations');
+            recContainer.innerHTML = mockProducts.map(prod => `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-brand-200 dark:border-brand-900/50 p-4 flex flex-col justify-between shadow-sm hover:shadow-md transition">
+                    <div>
+                        <div class="relative rounded-xl overflow-hidden mb-3 h-32 bg-gray-100">
+                            <img src="${prod.img}" alt="${prod.title}" class="w-full h-full object-cover" />
+                            <span class="absolute top-2 right-2 bg-brand-600 text-white font-bold text-[10px] px-2 py-0.5 rounded-full shadow">Rekomendasi AI</span>
+                        </div>
+                        <span class="text-[10px] text-gray-400 block">${prod.vendor}</span>
+                        <h4 class="font-bold text-xs text-gray-900 dark:text-white mt-0.5 line-clamp-1">${prod.title}</h4>
+                        <div class="mt-2 flex justify-between items-center bg-brand-50 dark:bg-brand-950/40 p-2 rounded-lg text-[11px]">
+                            <span class="text-brand-700 dark:text-brand-300 font-semibold">Estimasi Hemat:</span>
+                            <span class="font-extrabold text-brand-600 dark:text-brand-400">${prod.saving}</span>
+                        </div>
+                    </div>
+                    <div class="mt-4 pt-3 border-t dark:border-gray-700 flex flex-col gap-2">
+                        <div class="flex justify-between items-center text-xs font-bold">
+                            <span class="text-gray-900 dark:text-white">${prod.price}</span>
+                            <span class="text-yellow-500 flex items-center"><i data-lucide="star" class="w-3 h-3 fill-yellow-500 mr-1"></i>${prod.rating}</span>
+                        </div>
+                        <div class="grid grid-cols-2 gap-1.5 mt-1">
+                            <button onclick="showToast('Produk ditambahkan ke Keranjang Escrow')" class="w-full bg-gray-100 hover:bg-gray-200 dark:bg-gray-700 dark:hover:bg-gray-600 text-gray-800 dark:text-gray-200 text-[11px] font-semibold py-2 rounded-xl transition">
+                                + Keranjang
+                            </button>
+                            <button onclick="openChatModal('${prod.vendor}')" class="w-full bg-brand-600 hover:bg-brand-700 text-white text-[11px] font-bold py-2 rounded-xl transition shadow">
+                                Chat Vendor
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            `).join('');
+            lucide.createIcons();
+        }
+
+        // RENDER MARKETPLACE PRODUCTS GRID
+        function renderMarketplace() {
+            const grid = document.getElementById('marketplaceGrid');
+            grid.innerHTML = mockProducts.map(prod => `
+                <div class="bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 overflow-hidden shadow-sm flex flex-col justify-between">
+                    <div>
+                        <div class="h-40 bg-gray-100 relative">
+                            <img src="${prod.img}" class="w-full h-full object-cover" />
+                        </div>
+                        <div class="p-4">
+                            <span class="text-[10px] text-brand-600 font-bold uppercase tracking-wider">${prod.vendor}</span>
+                            <h4 class="font-bold text-sm text-gray-900 dark:text-white mt-1">${prod.title}</h4>
+                            <div class="mt-3 flex items-center justify-between text-xs text-gray-500">
+                                <span>Hemat Listrik: <strong class="text-emerald-600">${prod.saving}</strong></span>
+                                <span>ROI: <strong>${prod.roi}</strong></span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="p-4 border-t dark:border-gray-700 flex items-center justify-between bg-gray-50/50 dark:bg-gray-800/50">
+                        <span class="font-extrabold text-sm text-gray-900 dark:text-white">${prod.price}</span>
+                        <button onclick="showToast('Checkout Multi-Vendor Escrow Dimulai')" class="bg-brand-600 hover:bg-brand-700 text-white font-bold text-xs px-3.5 py-2 rounded-xl transition">
+                            Beli Sekarang
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // RENDER VENDOR PRODUCT MANAGEMENT TABLE
+        function renderVendorProducts() {
+            const tbl = document.getElementById('vendorProductTable');
+            tbl.innerHTML = mockProducts.map(prod => `
+                <tr>
+                    <td class="p-3 font-semibold text-gray-900 dark:text-white">${prod.title}</td>
+                    <td class="p-3 text-gray-500">Perangkat Komersial</td>
+                    <td class="p-3 font-bold">${prod.price}</td>
+                    <td class="p-3 text-emerald-600 font-bold">${prod.saving}</td>
+                    <td class="p-3">24 Unit</td>
+                    <td class="p-3">
+                        <button onclick="showToast('Edit Produk')" class="text-blue-600 hover:underline mr-2">Edit</button>
+                        <button onclick="showToast('Hapus Produk')" class="text-red-600 hover:underline">Hapus</button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        // FEATURE 1 REQ: CERTIFICATE MODAL CONTROLS & PRINT/PDF SIMULATION
+        function openCertificateModal() {
+            document.getElementById('certBuyerName').innerText = currentCertData.name;
+            document.getElementById('certGradeText').innerText = `GRADE ${currentCertData.grade.toUpperCase()}`;
+            document.getElementById('certScoreText').innerText = `${currentCertData.score} / 100`;
+            document.getElementById('certDateText').innerText = currentCertData.date;
+            document.getElementById('certificateModal').classList.remove('hidden');
+        }
+
+        function closeCertificateModal() {
+            document.getElementById('certificateModal').classList.add('hidden');
+        }
+
+        function printCertificate() {
+            window.print();
+        }
+
+        function downloadCertificatePDF() {
+            const element = document.getElementById('printableCertificate');
+            showToast("Mengeksport Sertifikat Efisiensi ke PDF...");
+            if (typeof html2pdf !== 'undefined') {
+                const opt = {
+                    margin:       0.5,
+                    filename:     `Sertifikat_Efisiensi_${currentCertData.name.replace(/\s+/g, '_')}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2 },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'landscape' }
+                };
+                html2pdf().set(opt).from(element).save();
+            } else {
+                setTimeout(() => showToast("Simulasi PDF Berhasil Diunduh"), 1500);
+            }
+        }
+
+        // AUDITOR SUBMISSION (Realisasi Sertifikat Baru)
+        function submitAuditorMeasurement(e) {
+            e.preventDefault();
+            const grade = document.getElementById('audGrade').value;
+            const score = document.getElementById('audScore').value;
+
+            currentCertData.grade = grade;
+            currentCertData.score = score;
+
+            showToast(`Sertifikat berhasil direalisasikan! Grade: ${grade} (${score}/100)`);
+            openCertificateModal();
+        }
+
+        // FEATURE 4 REQ: OTP MODAL (OTP CODE: 123456)
+        function openOTPModal() {
+            document.getElementById('otpModal').classList.remove('hidden');
+        }
+
+        function closeOTPModal() {
+            document.getElementById('otpModal').classList.add('hidden');
+        }
+
+        function verifyOTPAndAddBank(e) {
+            e.preventDefault();
+            const otp = document.getElementById('otpInput').value;
+            if (otp === '123456') {
+                closeOTPModal();
+                showToast("Rekening Bank Berhasil Diverifikasi & Disimpan!");
+            } else {
+                showToast("Kode OTP Salah! Gunakan Kode Demo: 123456");
+            }
+        }
+
+        // CHAT MODAL CONTROLS
+        function openChatModal(vendorName) {
+            document.getElementById('chatVendorTitle').innerText = vendorName || 'Vendor Official PT EcoTech';
+            document.getElementById('chatModal').classList.remove('hidden');
+        }
+
+        function closeChatModal() {
+            document.getElementById('chatModal').classList.add('hidden');
+        }
+
+        function sendChatMessage(e) {
+            e.preventDefault();
+            const inp = document.getElementById('chatInput');
+            const box = document.getElementById('chatMessages');
+            if (!inp.value.trim()) return;
+
+            box.innerHTML += `
+                <div class="bg-brand-600 text-white p-3 rounded-2xl max-w-[80%] ml-auto text-xs">
+                    ${inp.value}
+                </div>
+            `;
+            inp.value = '';
+            box.scrollTop = box.scrollHeight;
+
+            setTimeout(() => {
+                box.innerHTML += `
+                    <div class="bg-gray-100 dark:bg-gray-700 p-3 rounded-2xl max-w-[80%] text-xs text-gray-800 dark:text-gray-200">
+                        Terima kasih pesan Anda telah diterima oleh tim teknis kami.
+                    </div>
+                `;
+                box.scrollTop = box.scrollHeight;
+            }, 1000);
+        }
+
+        function openModalAddProduct() {
+            showToast("Modal Tambah Produk Baru Siap Digunakan");
+        }
+
+        function openModalWithdraw() {
+            showToast("Pengajuan Penarikan Saldo Escrow Rp 12.800.000 Diproses");
+        }
+
+        function submitAuditRequest(e) {
+            e.preventDefault();
+            showToast("Pengajuan Audit Berhasil Dikirim ke Tim FT UM!");
+        }
+
+        // CHART.JS INITIALIZATION
+        function initCharts() {
+            // Dashboard Line Chart (Sebelum vs Sesudah)
+            const ctxDash = document.getElementById('buyerDashboardChart').getContext('2d');
+            chartDash = new Chart(ctxDash, {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+                    datasets: [
+                        {
+                            label: 'Sebelum Efisiensi',
+                            data: [3200, 3100, 3300, 3150, 3400, 3250],
+                            borderColor: '#ef4444',
+                            tension: 0.3
+                        },
+                        {
+                            label: 'Sesudah Optimization',
+                            data: [2300, 2200, 2150, 2100, 2050, 1980],
+                            borderColor: '#16a34a',
+                            backgroundColor: 'rgba(22, 163, 74, 0.1)',
+                            fill: true,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Dashboard Pie Chart
+            const ctxPie = document.getElementById('buyerPieChart').getContext('2d');
+            chartPie = new Chart(ctxPie, {
+                type: 'doughnut',
+                data: {
+                    labels: ['AC & Pendingin', 'Pencahayaan LED', 'Peralatan Dapur/Mesin', 'Lainnya'],
+                    datasets: [{
+                        data: [55, 20, 18, 7],
+                        backgroundColor: ['#0284c7', '#16a34a', '#eab308', '#94a3b8']
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+
+            // Calculator Accumulative Comparison Chart
+            const ctxCalc = document.getElementById('calcComparisonChart').getContext('2d');
+            chartCalc = new Chart(ctxCalc, {
+                type: 'bar',
+                data: {
+                    labels: ['Bln 1', 'Bln 2', 'Bln 3', 'Bln 4', 'Bln 5', 'Bln 6'],
+                    datasets: [
+                        { label: 'Tanpa Inverter/Retrofit', data: [5, 10, 15, 20, 25, 30], backgroundColor: '#f87171' },
+                        { label: 'Dengan EcoFacility AI', data: [3.5, 7, 10.5, 14, 17.5, 21], backgroundColor: '#4ade80' }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false }
+            });
+        }
+    </script>
+</body>
+</html>
